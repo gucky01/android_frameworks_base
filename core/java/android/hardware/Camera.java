@@ -1389,7 +1389,9 @@ public class Camera {
      */
     public void setAutoFocusMoveCallback(AutoFocusMoveCallback cb) {
         mAutoFocusMoveCallback = cb;
-        enableFocusMoveCallback((mAutoFocusMoveCallback != null) ? 1 : 0);
+        // not supported with old camera blobs => ignore and continue
+        try { enableFocusMoveCallback((mAutoFocusMoveCallback != null) ? 1 : 0); }
+        catch(Exception e) {} 
     }
 
     private native void enableFocusMoveCallback(int enable);
@@ -1958,6 +1960,7 @@ public class Camera {
      * @see #getParameters()
      */
     public void setParameters(Parameters params) {
+    Log.v(TAG, "setParameters:"+params.flatten());
         // If using preview allocations, don't allow preview size changes
         if (mUsingPreviewAllocation) {
             Size newPreviewSize = params.getPreviewSize();
@@ -3624,6 +3627,8 @@ public class Camera {
          * @see #getAntibanding()
          */
         public void setAntibanding(String antibanding) {
+        List<String> supported = getSupportedAntibanding();
+        if(supported == null || ! supported.contains(antibanding)) return;
             set(KEY_ANTIBANDING, antibanding);
         }
 
@@ -3678,6 +3683,7 @@ public class Camera {
          * @see #getSceneMode()
          */
         public void setSceneMode(String value) {
+        if(getSupportedSceneModes() == null) return;
             set(KEY_SCENE_MODE, value);
         }
 
@@ -3715,6 +3721,7 @@ public class Camera {
          * @see #getFlashMode()
          */
         public void setFlashMode(String value) {
+        if(getSupportedFlashModes() == null) return;
             set(KEY_FLASH_MODE, value);
         }
 
